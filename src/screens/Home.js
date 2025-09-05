@@ -1,89 +1,83 @@
-// Importación de bibliotecas y componentes necesarios
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { database } from '../config/firebase'; // Importa la configuración de la base de datos de Firebase
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'; // Importa funciones de Firestore para consultas en tiempo real
-import CardProductos from '../components/CardProductos'; // Importa el componente de tarjeta de producto
+import { database, auth } from '../config/firebase';
+import { collection, onSnapshot, query, where } from 'firebase/firestore'; 
+import { signOut } from 'firebase/auth'; // Para cerrar sesión
+import CardPerfil from '../components/CardPerfil'; // Usa la card de perfil
 
-// Definición del componente principal Home
-const Home = ({ navigation }) => {
-    // Definición del estado local para almacenar los productos
-    const [productos, setProductos] = useState([]);
+const HomePerfil = ({ navigation }) => {
+    const [perfil, setPerfil] = useState(null);
 
-    // useEffect se ejecuta cuando el componente se monta
     useEffect(() => {
-        // Define una consulta a la colección 'productos' en Firestore, ordenada por el campo 'creado' en orden descendente
-        const q = query(collection(database, 'productos'), orderBy('creado', 'desc'));
-        
-        // Escucha cambios en la consulta de Firestore en tiempo real
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const docs = [];
-            querySnapshot.forEach((doc) => {
-                // Empuja cada documento con su ID a la lista de docs
-                docs.push({ id: doc.id, ...doc.data() });
-            });
-            // Actualiza el estado de productos con los datos recibidos
-            setProductos(docs);
-        });
+        const user = auth.currentUser; // Obtenemos el usuario autenticado
 
-        // Limpieza de la suscripción al desmontar el componente
-        return () => unsubscribe();
+        if (user) {
+            const q = query(
+                collection(database, 'usuarios'),
+                where('correo', '==', user.email) // Filtramos por correo
+            );
+
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const docs = [];
+                querySnapshot.forEach((doc) => {
+                    docs.push({ id: doc.id, ...doc.data() });
+                });
+                setPerfil(docs[0]); // Solo debería haber un perfil
+            });
+
+            return () => unsubscribe();
+        }
     }, []);
 
-    // Función para navegar a la pantalla 'Add'
-    const goToAdd = () => { 
-        navigation.navigate('Add');
-    }
+    const goToEdit = (id) => {
+        navigation.navigate('Edit', { perfil }); // Pasamos el perfil completo al editar
+    };
 
-    // Función que renderiza cada item de la lista
-    const renderItem = ({ item }) => (
-        <CardProductos
-            id={item.id}
-            nombre={item.nombre}
-            precio={item.precio}
-            vendido={item.vendido}
-            imagen={item.imagen}
-        />
-    );
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            navigation.navigate('Login'); // Redirigir a la pantalla de Login
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
+        }
+    };
 
-    // Renderiza la interfaz del componente Home
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Productos Disponibles</Text>
-
-            {/* Muestra la lista de productos si hay elementos, de lo contrario muestra un mensaje */}
-            {
-                productos.length !== 0 ?
+            {perfil ? (
                 <FlatList
-                    data={productos}
-                    renderItem={renderItem}
+                    data={[perfil]} // Pasamos solo un perfil, ya que solo hay uno
+                    renderItem={({ item }) => (
+                        <CardPerfil
+                            id={item.id}
+                            nombre={item.nombre}
+                            correo={item.correo}
+                            contrasena={item.contrasena}
+                            titulo={item.titulo}
+                            anioGraduacion={item.anioGraduacion}
+                            onEdit={goToEdit}
+                        />
+                    )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                 />
-                : 
-                <Text style={styles.Subtitle}>No hay productos disponibles</Text>
-            }
+            ) : (
+                <Text style={styles.subtitle}>Cargando perfil...</Text>
+            )}
 
-            {/* Botón para navegar a la pantalla de agregar productos */}
-            <TouchableOpacity
-                style={styles.Button}
-                onPress={goToAdd}>
-                <Text style={styles.ButtonText}>Agregar Producto</Text>
+            <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+                <Text style={styles.buttonText}>Cerrar Sesión</Text>
             </TouchableOpacity>
         </View>
     );
 };
 
+export default HomePerfil;
 
-// Exporta el componente Home como predeterminado
-export default Home;
-
-// Estilos para el componente Home
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FEFEFE',
-        justifyContent: 'center',
         padding: 20,
     },
     title: {
@@ -92,22 +86,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
-    Subtitle: {
+    subtitle: {
         fontSize: 20,
-        fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 10,
-        color:'#ff9800'
+        color: '#ff9800',
+        marginTop: 20,
     },
-    Button: {
+    button: {
         backgroundColor: '#0288d1',
-        padding: 10,
+        padding: 15,
         borderRadius: 5,
         marginTop: 20,
-        marginHorizontal: 50,
-        paddingVertical: 20,
     },
-    ButtonText: {
+    buttonText: {
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',

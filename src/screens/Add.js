@@ -1,191 +1,179 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Image, Alert } from 'react-native';
-import { database } from '../config/firebase';
-//import { database, storage } from '../config/firebase';
-//import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Alert,
+} from 'react-native';
+import { database, auth } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import * as ImagePicker from 'expo-image-picker';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-// Componente Add para agregar un nuevo producto
-const Add = ({ navigation }) => {
-    // Estado inicial del producto
-    const [producto, setProducto] = useState({
-        nombre: '',
-        precio: 0,
-        vendido: false,
-        creado: new Date(),
-        imagen: ''
-    });
+const AddPerfil = ({ navigation }) => {
+  const [perfil, setPerfil] = useState({
+    nombre: '',
+    correo: '',
+    contrasena: '',
+    titulo: '',
+    anioGraduacion: '',
+    creado: new Date(),
+  });
 
-    // Función para navegar a la pantalla de inicio
-    const goToHome = () => {
+  const goToHome = () => {
     navigation.goBack();
-    };
+  };
+  
+  const gotoLogin = () => 
+    {
+      navigation.navigate('Login');
+  }
 
-    // Función para abrir la galería de imágenes del dispositivo
-    const openGalery = async () => {
-        try {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [8, 8],
-                quality: 1,
-            });
+  const agregarPerfil = async () => {
+    const { correo, contrasena, ...restoPerfil } = perfil;
 
-            if (!result.canceled && result.assets.length > 0) {
-                setProducto({
-                    ...producto,
-                    imagen: result.assets[0].uri
-                });
-                console.log('Imagen seleccionada:', result.assets[0].uri);
-            }
-        } catch (error) {
-            console.log('Error al abrir la galería', error);
-        }
-    };
+    try {
+      // 1. Registrar usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, correo, contrasena);
+      const user = userCredential.user;
 
-    // Función para agregar el producto a Firestore
-    const agregarProducto = async () => {
-        try {
-            let imageUrl = "Storage ya no es gratuito";
+      // 2. Guardar información adicional en Firestore
+      await addDoc(collection(database, 'usuarios'), {
+        ...restoPerfil,
+        correo,
+        uid: user.uid,
+        creado: new Date(),
+      });
 
-          /*  if (producto.imagen) {
-                console.log('Subiendo imagen a Firebase Storage...');
-                const imageRef = ref(storage, `images/${Date.now()}-${producto.nombre}`);
+      console.log('Usuario creado y perfil guardado.');
+      Alert.alert('Registro exitoso', 'El perfil se creó correctamente.', [
+        { text: 'OK', onPress: goToHome },
+      ]);
+    } catch (error) {
+      console.error('Error al crear usuario:', error);
+      Alert.alert('Error de registro', error.message || 'Ocurrió un error');
+    }
+  };
 
-                const response = await fetch(producto.imagen);
-                const blob = await response.blob();
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Agregar perfil</Text>
 
-                console.log('Antes del uploadBytes');
-                const snapshot = await uploadBytes(imageRef, blob);
-                console.log('Snapshot después del uploadBytes:', snapshot);
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Nombre:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={text => setPerfil({ ...perfil, nombre: text })}
+          value={perfil.nombre}
+        />
+      </View>
 
-                imageUrl = await getDownloadURL(snapshot.ref);
-                console.log("URL de la imagen:", imageUrl);
-            }
-*/
-            //console.log('Datos del producto:', {...producto, imagen: imageUrl});
-            //console.log('Datos del producto:', {...producto});
-            await addDoc(collection(database, 'productos'), {...producto, imagen: imageUrl});
-            console.log('Se guardó la colección');
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Correo electrónico:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={text => setPerfil({ ...perfil, correo: text })}
+          value={perfil.correo}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
 
-            Alert.alert('Producto agregado', 'El producto se agregó correctamente', [
-                { text: 'Ok', onPress: goToHome },
-            ]);
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Contraseña:</Text>
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          onChangeText={text => setPerfil({ ...perfil, contrasena: text })}
+          value={perfil.contrasena}
+        />
+      </View>
 
-        } catch (error) {
-            console.error('Error al agregar el producto', error);
-            Alert.alert('Error', 'Ocurrió un error al agregar el producto. Por favor, intenta nuevamente.');
-        }
-    };
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Título universitario:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={text => setPerfil({ ...perfil, titulo: text })}
+          value={perfil.titulo}
+        />
+      </View>
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Agregar producto</Text>
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Nombre:</Text>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={text => setProducto({ ...producto, nombre: text })}
-                    value={producto.nombre}
-                />
-            </View>
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Precio:</Text>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={text => setProducto({ ...producto, precio: parseFloat(text) })}
-                    value={producto.precio}
-                    keyboardType='numeric'
-                />
-            </View>
-            <Text>Imagen:</Text>
-            <TouchableOpacity onPress={openGalery} style={styles.imagePicker}>
-                <Text style={styles.imagePickerText}>Seleccionar Imagen</Text>
-            </TouchableOpacity>
-            {producto.imagen ? <Image source={{ uri: producto.imagen }} style={styles.imagePreview} /> : null}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Año de graduación:</Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          onChangeText={text => setPerfil({ ...perfil, anioGraduacion: text })}
+          value={perfil.anioGraduacion}
+        />
+      </View>
 
-            <TouchableOpacity style={styles.button} onPress={agregarProducto}>
-                <Text style={styles.buttonText}>Agregar producto</Text>
-            </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={agregarPerfil}>
+        <Text style={styles.buttonText}>Registrarme</Text>
+      </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={goToHome}>
-                <Text style={styles.buttonText}>Volver a home</Text>
-            </TouchableOpacity>
-        </View>
-    );
+      <TouchableOpacity style={styles.button} onPress={gotoLogin}>
+        <Text style={styles.buttonText}>Iniciar Sesión</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
-export default Add;
+export default AddPerfil;
 
-// Estilos del componente
+// Estilos
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    input: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 4,
-        paddingLeft: 8,
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 2,
-        width: '100%'
-    },
-    imagePicker: {
-        backgroundColor: '#0288d1',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginBottom: 20,
-        width: '100%',
-    },
-    imagePickerText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-    imagePreview: {
-        width: 100,
-        height: 100,
-        marginBottom: 20,
-    },
-    button: {
-        backgroundColor: '#0288d1',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 20,
-        width: '100%',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 8,
-        color: '#333',
-    },
-    inputContainer: {
-        width: '100%',
-        padding: 16,
-        backgroundColor: '#f8f9fa',
-        marginBottom: 16,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingLeft: 8,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+    width: '100%',
+  },
+  button: {
+    backgroundColor: '#0288d1',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
+  },
+  inputContainer: {
+    width: '100%',
+    padding: 16,
+    backgroundColor: '#f8f9fa',
+    marginBottom: 16,
+    borderRadius: 5,
+  },
 });
