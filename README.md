@@ -1,6 +1,6 @@
 # Evaluación Módulo 5
 
-**Nombre del estudiante:**  
+**Estudiante:**  
 Alessandro Antonio Muñoz Quijada  
 **Carnet:** 20200128
 
@@ -26,4 +26,5 @@ Alessandro Antonio Muñoz Quijada
 
 > Proyecto presentado para la Evaluación del Módulo 5.  
 Desarrollado con React Native y Firebase.
+
 
