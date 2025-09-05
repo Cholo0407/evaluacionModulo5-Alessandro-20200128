@@ -1,17 +1,25 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
+// Componente que muestra la información del perfil en una tarjeta
 const CardPerfil = ({ id, nombre, correo, contrasena, titulo, anioGraduacion, onEdit }) => {
     return (
+        // Tarjeta visual con los datos del usuario
         <View style={styles.card}>
+            {/* Nombre del usuario */}
             <Text style={styles.titulo}>{nombre}</Text>
+            {/* Correo electrónico */}
             <Text style={styles.text}>{correo}</Text>
+            {/* Contraseña (no recomendable mostrarla, solo para pruebas) */}
             <Text style={styles.text}>{contrasena}</Text>
+            {/* Título universitario */}
             <Text style={styles.text}>{titulo}</Text>
+            {/* Año de graduación */}
             <Text style={styles.text}>Año de Graduación: {anioGraduacion}</Text>
 
             {/* Botones alineados horizontalmente */}
             <View style={styles.buttonContainer}>
+                {/* Botón para editar el perfil */}
                 <TouchableOpacity onPress={() => onEdit(id)}>
                     <Text style={styles.editButton}>Editar</Text>
                 </TouchableOpacity>
@@ -20,6 +28,7 @@ const CardPerfil = ({ id, nombre, correo, contrasena, titulo, anioGraduacion, on
     );
 };
 
+// Estilos para la tarjeta y sus elementos
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#f0f4ff',

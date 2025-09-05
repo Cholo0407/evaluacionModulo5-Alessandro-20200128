@@ -11,7 +11,9 @@ import { database, auth } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
+// Componente para registrar un nuevo perfil de usuario
 const AddPerfil = ({ navigation }) => {
+  // Estado local para los campos del formulario de registro
   const [perfil, setPerfil] = useState({
     nombre: '',
     correo: '',
@@ -21,18 +23,19 @@ const AddPerfil = ({ navigation }) => {
     creado: new Date(),
   });
 
+  // Función para regresar a la pantalla anterior (Home)
   const goToHome = () => {
     navigation.goBack();
   };
   
-  const gotoLogin = () => 
-    {
-      navigation.navigate('Login');
+  // Función para navegar a la pantalla de Login
+  const gotoLogin = () => {
+    navigation.navigate('Login');
   }
 
+  // Función para agregar el perfil y registrar el usuario en Firebase
   const agregarPerfil = async () => {
     const { correo, contrasena, ...restoPerfil } = perfil;
-
     try {
       // 1. Registrar usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, correo, contrasena);
@@ -51,6 +54,7 @@ const AddPerfil = ({ navigation }) => {
         { text: 'OK', onPress: goToHome },
       ]);
     } catch (error) {
+      // Muestra alerta si ocurre un error en el registro
       console.error('Error al crear usuario:', error);
       Alert.alert('Error de registro', error.message || 'Ocurrió un error');
     }
@@ -58,8 +62,10 @@ const AddPerfil = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Título de la pantalla */}
       <Text style={styles.title}>Registrate</Text>
 
+      {/* Input para el nombre */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Nombre:</Text>
         <TextInput
@@ -69,6 +75,7 @@ const AddPerfil = ({ navigation }) => {
         />
       </View>
 
+      {/* Input para el correo electrónico */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Correo electrónico:</Text>
         <TextInput
@@ -80,6 +87,7 @@ const AddPerfil = ({ navigation }) => {
         />
       </View>
 
+      {/* Input para la contraseña */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Contraseña:</Text>
         <TextInput
@@ -90,6 +98,7 @@ const AddPerfil = ({ navigation }) => {
         />
       </View>
 
+      {/* Input para el título universitario */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Título universitario:</Text>
         <TextInput
@@ -99,6 +108,7 @@ const AddPerfil = ({ navigation }) => {
         />
       </View>
 
+      {/* Input para el año de graduación */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Año de graduación:</Text>
         <TextInput
@@ -109,10 +119,12 @@ const AddPerfil = ({ navigation }) => {
         />
       </View>
 
+      {/* Botón para registrar el perfil */}
       <TouchableOpacity style={styles.button} onPress={agregarPerfil}>
         <Text style={styles.buttonText}>Registrarme</Text>
       </TouchableOpacity>
 
+      {/* Botón para ir a la pantalla de inicio de sesión */}
       <TouchableOpacity style={styles.button} onPress={gotoLogin}>
         <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
@@ -122,7 +134,7 @@ const AddPerfil = ({ navigation }) => {
 
 export default AddPerfil;
 
-// Estilos
+// Estilos para el componente de registro
 const styles = StyleSheet.create({
   container: {
     flex: 1,

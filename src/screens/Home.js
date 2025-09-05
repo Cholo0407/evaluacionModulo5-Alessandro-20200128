@@ -5,18 +5,23 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth'; // Para cerrar sesión
 import CardPerfil from '../components/CardPerfil'; // Usa la card de perfil
 
+// Componente principal de la pantalla Home
 const HomePerfil = ({ navigation }) => {
+    // Estado para guardar el perfil del usuario
     const [perfil, setPerfil] = useState(null);
 
+    // useEffect para obtener el perfil del usuario autenticado desde Firestore
     useEffect(() => {
         const user = auth.currentUser; // Obtenemos el usuario autenticado
 
         if (user) {
+            // Creamos una consulta para buscar el perfil por correo
             const q = query(
                 collection(database, 'usuarios'),
                 where('correo', '==', user.email) // Filtramos por correo
             );
 
+            // Suscribimos a los cambios en la colección de usuarios
             const unsubscribe = onSnapshot(q, (querySnapshot) => {
                 const docs = [];
                 querySnapshot.forEach((doc) => {
@@ -25,14 +30,17 @@ const HomePerfil = ({ navigation }) => {
                 setPerfil(docs[0]); // Solo debería haber un perfil
             });
 
+            // Limpiamos la suscripción al desmontar el componente
             return () => unsubscribe();
         }
     }, []);
 
+    // Navega a la pantalla de edición, pasando el perfil actual
     const goToEdit = (id) => {
         navigation.navigate('Edit', { perfil }); // Pasamos el perfil completo al editar
     };
 
+    // Función para cerrar sesión y redirigir al login
     const handleSignOut = async () => {
         try {
             await signOut(auth);
@@ -44,6 +52,7 @@ const HomePerfil = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            {/* Si el perfil está cargado, lo muestra en una CardPerfil */}
             {perfil ? (
                 <FlatList
                     data={[perfil]} // Pasamos solo un perfil, ya que solo hay uno
@@ -62,9 +71,11 @@ const HomePerfil = ({ navigation }) => {
                     contentContainerStyle={styles.list}
                 />
             ) : (
+                // Mensaje de carga si el perfil aún no está disponible
                 <Text style={styles.subtitle}>Cargando perfil...</Text>
             )}
 
+            {/* Botón para cerrar sesión */}
             <TouchableOpacity style={styles.button} onPress={handleSignOut}>
                 <Text style={styles.buttonText}>Cerrar Sesión</Text>
             </TouchableOpacity>
@@ -74,6 +85,7 @@ const HomePerfil = ({ navigation }) => {
 
 export default HomePerfil;
 
+// Estilos para la pantalla Home
 const styles = StyleSheet.create({
     container: {
         flex: 1,
