@@ -58,7 +58,7 @@ const AddPerfil = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Agregar perfil</Text>
+      <Text style={styles.title}>Registrate</Text>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Nombre:</Text>
@@ -126,54 +126,64 @@ export default AddPerfil;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', 
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 28,
     textAlign: 'center',
+    color: '#1e40af',
+    letterSpacing: 1,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
+    height: 44,
+    borderColor: '#a5b4fc',
     borderWidth: 1,
-    borderRadius: 4,
-    paddingLeft: 8,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
+    borderRadius: 8,
+    paddingLeft: 12,
+    backgroundColor: '#fff', 
+    shadowColor: '#6366f1',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
     width: '100%',
+    fontSize: 16,
+    color: '#334155',
   },
   button: {
-    backgroundColor: '#0288d1',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
+    backgroundColor: '#6366f1',
+    padding: 14,
+    borderRadius: 8,
+    marginTop: 24,
     width: '100%',
     alignItems: 'center',
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.18,
+    elevation: 3,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 16,
+    letterSpacing: 1,
   },
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: '#2563eb',
+    fontWeight: 'bold',
   },
   inputContainer: {
     width: '100%',
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-    marginBottom: 16,
-    borderRadius: 5,
+    padding: 6,
+    backgroundColor: '#fff', 
+    marginBottom: 18,
+    borderRadius: 10,
   },
 });

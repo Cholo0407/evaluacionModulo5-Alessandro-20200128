@@ -35,65 +35,88 @@ const Login = ({ navigation }) => {
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 28,
     textAlign: 'center',
+    color: '#1e40af',
+    letterSpacing: 1,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
+    height: 44,
+    borderColor: '#a5b4fc',
     borderWidth: 1,
-    borderRadius: 4,
-    paddingLeft: 8,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
+    borderRadius: 8,
+    paddingLeft: 12,
+    backgroundColor: '#fff', 
+    shadowColor: '#6366f1',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
     width: '100%',
+    fontSize: 16,
+    color: '#334155',
   },
   inputContainer: {
     width: '100%',
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-    marginBottom: 16,
-    borderRadius: 5,
+    padding: 18,
+    backgroundColor: '#fff', 
+    marginBottom: 18,
+    borderRadius: 10,
   },
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: '#2563eb',
+    fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#0288d1',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
+    backgroundColor: '#6366f1',
+    padding: 14,
+    borderRadius: 8,
+    marginTop: 24,
     width: '100%',
     alignItems: 'center',
+    shadowColor: '#6366f1',
+    shadowOpacity: 0.18,
+    elevation: 3,
   },
   buttonSecondary: {
-    backgroundColor: '#4caf50',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: '100%',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8,
+    width: '70%',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  secondaryText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  secondaryQuestion: {
+    color: '#334155', 
+  },
+  secondaryRegister: {
+    color: '#2563eb',
   },
 });
 
   const irARegistro = () => {
-    navigation.navigate('Add'); // Asegúrate de que esta ruta esté definida en tu navigator
+    navigation.navigate('Add')
   };
 
   return (
@@ -121,14 +144,17 @@ const Login = ({ navigation }) => {
         />
       </View>
 
+      {/* Botón de registro arriba y más pequeño */}
+      <TouchableOpacity style={styles.buttonSecondary} onPress={irARegistro}>
+        <Text style={styles.secondaryText}>
+          <Text style={styles.secondaryQuestion}>¿Aún no tienes cuenta? </Text>
+          <Text style={styles.secondaryRegister}>Regístrate</Text>
+        </Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={iniciarSesion}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.buttonSecondary} onPress={irARegistro}>
-        <Text style={styles.buttonText}>Registrarme</Text>
-      </TouchableOpacity>
-      
     </View>
     
   );
